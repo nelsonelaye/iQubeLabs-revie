@@ -23,19 +23,25 @@ const getAllLikes = async (req, res) => {
   }
 };
 
-const getOneLike = async (req, res) => {
+const markAsHelpful = async (req, res) => {
   try {
-    const likeId = req.params.likeId;
-    const like = await likeModel.findById(likeId);
+    const review = await reviewModel.findById(req.params.reviewId);
 
-    if (like) {
-      res.status(200).json({
+    if (review) {
+      const like = new likeModel();
+
+      like.review = review;
+      like.save();
+
+      review.likes.push(mongoose.Types.ObjectId(like._id));
+      review.save();
+      res.status(201).json({
         status: "Success",
         data: like,
       });
     } else {
       res.status(404).json({
-        message: "No helpful marks found",
+        message: "Review not found",
       });
     }
   } catch (error) {
@@ -46,25 +52,30 @@ const getOneLike = async (req, res) => {
   }
 };
 
-const markHelpful = async (req, res) => {
+const unmarkAsHelpful = async (req, res) => {
   try {
     const review = await reviewModel.findById(req.params.reviewId);
+    const like = await likeModel.findById(req.params.likeId);
 
-    const user = await userModel.findById(req.params.userId);
+    if (review) {
+      if (like) {
+        await likeModel.findByIdAndDelete(like._id);
 
-    if (user) {
-      if (review) {
-        const like = new likeModel();
-        like.user = user;
-        like.review = review;
+        review.likes.pull(mongoose.Types.ObjectId(like._id));
+        review.save();
+
+        res.status(200).json({
+          status: "Success",
+          message: "Like removed",
+        });
       } else {
         res.status(404).json({
-          message: "Review not found",
+          message: "You haven't mark the review as helpful yet",
         });
       }
     } else {
       res.status(404).json({
-        message: "User not found",
+        message: "Review not found",
       });
     }
   } catch (error) {
@@ -74,7 +85,9 @@ const markHelpful = async (req, res) => {
     });
   }
 };
+
 module.exports = {
   getAllLikes,
-  getOneLike,
+  markAsHelpful,
+  unmarkAsHelpful,
 };

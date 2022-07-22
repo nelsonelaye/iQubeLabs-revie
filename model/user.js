@@ -30,12 +30,6 @@ const userSchema = mongoose.Schema(
         ref: "reviews",
       },
     ],
-    likes: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "reviews",
-      },
-    ],
   },
   { timestamps: true }
 );

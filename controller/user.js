@@ -122,9 +122,63 @@ const loginUser = async (req, res) => {
   }
 };
 
+const updateUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const user = await userModel.findById(userId);
+
+    if (user) {
+      const newUser = await userModel.findByIdAndUpdate(userId, req.body, {
+        new: true,
+      });
+
+      res.status(200).json({
+        status: "Success",
+        data: newUser,
+      });
+    } else {
+      res.status(404).json({
+        message: "User not found",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const user = await userModel.findById(userId);
+
+    if (user) {
+      await userModel.findByIdAndDelete(userId);
+
+      res.status(204).json({
+        status: "Success",
+        message: "User deleted",
+      });
+    } else {
+      res.status(404).json({
+        message: "User not found",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getAllUsers,
   getOneUser,
   registerUser,
   loginUser,
+  updateUser,
+  deleteUser,
 };

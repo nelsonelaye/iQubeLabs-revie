@@ -93,7 +93,7 @@ const loginUser = async (req, res) => {
             email: user.email,
             tel: user.tel,
           },
-          process.env.TOKEN,
+          process.env.SECRET,
           { expiresIn: process.env.EXPIRES }
         );
 

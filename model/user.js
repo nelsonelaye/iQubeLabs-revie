@@ -30,7 +30,7 @@ const userSchema = mongoose.Schema(
         ref: "reviews",
       },
     ],
-    markedHelpful: [
+    likes: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "reviews",

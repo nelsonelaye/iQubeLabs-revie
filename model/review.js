@@ -13,12 +13,6 @@ const reviewSchema = mongoose.Schema(
     imageId: {
       type: String,
     },
-    helpfulMarks: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "users",
-      },
-    ],
 
     apartmentReview: {
       type: String,
@@ -27,15 +21,22 @@ const reviewSchema = mongoose.Schema(
     apartmentAddress: {
       type: String,
     },
-    landlordReview: {
+    reviewOnLandlord: {
       type: String,
     },
-    environmentReview: {
+    reviewOnEnvironment: {
       type: String,
     },
-    amenitiesReview: {
+    reviewOnAmenities: {
       type: String,
     },
+
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "users",
+      },
+    ],
   },
   { timestamps: true }
 );

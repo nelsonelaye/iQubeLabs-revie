@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const authorizeUser = require("../utils/authorize");
 
 const {
   getAllUsers,
@@ -12,7 +13,11 @@ const {
 
 router.route("/").get(getAllUsers);
 
-router.route("/:userId").get(getOneUser).patch(updateUser).delete(deleteUser);
+router
+  .route("/:userId")
+  .get(getOneUser)
+  .patch(authorizeUser, updateUser)
+  .delete(authorizeUser, deleteUser);
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);

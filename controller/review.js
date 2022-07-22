@@ -3,7 +3,7 @@ const reviewModel = require("../model/review");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
-const cloudinary = require("cloudinary");
+const cloudinary = require("../utils/cloudinary");
 const mongoose = require("mongoose");
 
 const getAllReviews = async (req, res) => {
@@ -14,7 +14,7 @@ const getAllReviews = async (req, res) => {
       status: "Success",
       data: reviews,
     });
-  } catch {
+  } catch (error) {
     res.status(500).json({
       status: "Failed",
       message: error.message,
@@ -85,7 +85,128 @@ const createReview = async (req, res) => {
         message: "User not found",
       });
     }
-  } catch {
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error,
+    });
+  }
+};
+
+const updateReview = async (req, res) => {
+  try {
+    const reviewId = req.params.reviewId;
+    const review = await reviewModel.findById(reviewId);
+
+    const user = await userModel.findById(req.params.userId);
+
+    if (user) {
+      if (review) {
+        const newReview = await reviewModel.findByIdAndUpdate(
+          review._id,
+          req.body,
+          { new: true }
+        );
+
+        user.reviews.pull(mongoose.Types.ObjectId(review._id));
+        user.reviews.push(mongoose.Types.ObjectId(newReview._id));
+        user.save();
+
+        res.status(200).json({
+          status: "Success",
+          data: newReview,
+        });
+      } else {
+        res.status(404).json({
+          message: "Review not found",
+        });
+      }
+    } else {
+      res.status(404).json({
+        message: "User not found",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
+
+const updateReviewImage = async (req, res) => {
+  try {
+    const reviewId = req.params.reviewId;
+    const review = await reviewModel.findById(reviewId);
+    const user = await userModel.findById(req.params.userId);
+
+    if (user) {
+      if (review) {
+        await cloudinary.uploader.destroy(review.imageId);
+        const result = await cloudinary.uploader.upload(req.file.path);
+
+        const newReview = await reviewModel.findByIdAndUpdate(
+          review._id,
+          {
+            image: result.secure_url,
+            imageId: result.public_id,
+          },
+          { new: true }
+        );
+
+        user.reviews.pull(mongoose.Types.ObjectId(review._id));
+        user.reviews.push(mongoose.Types.ObjectId(newReview._id));
+        user.save();
+
+        res.status(200).json({
+          status: "Success",
+          data: newReview,
+        });
+      } else {
+        res.status(404).json({
+          message: "Review not found",
+        });
+      }
+    } else {
+      res.status(404).json({
+        message: "User not found",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
+
+const deleteReview = async (req, res) => {
+  try {
+    const reviewId = req.params.reviewId;
+    const review = await reviewModel.findById(reviewId);
+    if (user) {
+      if (review) {
+        await cloudinary.uploader.destroy(review.imageId);
+        await reviewModel.findByIdAndDelete(review._id);
+
+        user.reviews.pull(mongoose.Types.ObjectId(review._id));
+
+        user.save();
+        res.status(204).json({
+          status: "Success",
+          message: "Review deleted",
+        });
+      } else {
+        res.status(404).json({
+          message: "Review not found",
+        });
+      }
+    } else {
+      res.status(404).json({
+        message: "User not found",
+      });
+    }
+  } catch (error) {
     res.status(500).json({
       status: "Failed",
       message: error.message,
@@ -96,4 +217,8 @@ const createReview = async (req, res) => {
 module.exports = {
   getAllReviews,
   getOneReview,
+  createReview,
+  updateReview,
+  updateReviewImage,
+  deleteReview,
 };

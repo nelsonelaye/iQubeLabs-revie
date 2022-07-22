@@ -6,11 +6,12 @@ const port = process.env.PORT || 2000;
 
 const app = express();
 app.use(express.json());
-app.get("/api/v1", (req, res) => {
-  res.send("Welcome to Revie");
+app.get("/api", (req, res) => {
+  res.status(200).send("Welcome to Revie");
 });
 
 app.use("/api/v1/user", require("./router/user"));
+app.use("/api/v1", require("./router/review"));
 
 app.listen(port, () => {
   console.log("Listening to port: ", port);

@@ -184,6 +184,7 @@ const deleteReview = async (req, res) => {
   try {
     const reviewId = req.params.reviewId;
     const review = await reviewModel.findById(reviewId);
+    const user = await userModel.findById(req.params.userId);
     if (user) {
       if (review) {
         await cloudinary.uploader.destroy(review.imageId);

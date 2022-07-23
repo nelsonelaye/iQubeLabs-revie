@@ -190,8 +190,8 @@ const deleteReview = async (req, res) => {
         await reviewModel.findByIdAndDelete(review._id);
 
         user.reviews.pull(mongoose.Types.ObjectId(review._id));
-
         user.save();
+
         res.status(204).json({
           status: "Success",
           message: "Review deleted",
@@ -214,6 +214,32 @@ const deleteReview = async (req, res) => {
   }
 };
 
+const filterHighestReviews = async (req, res) => {
+  try {
+    var mysort = { likes: -1 };
+    const reviews = await reviewModel
+      .find()
+      .sort(mysort)
+      .exec((err, result) => {
+        if (err) {
+          res.status(500).json({
+            message: error.message,
+          });
+        } else {
+          res.status(200).json({
+            status: "Success",
+            data: result,
+          });
+        }
+      });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getAllReviews,
   getOneReview,
@@ -221,4 +247,5 @@ module.exports = {
   updateReview,
   updateReviewImage,
   deleteReview,
+  filterHighestReviews,
 };

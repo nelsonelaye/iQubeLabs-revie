@@ -9,9 +9,12 @@ const {
   updateReview,
   updateReviewImage,
   deleteReview,
+  filterHighestReviews,
 } = require("../controller/review");
 
 router.route("/review").get(getAllReviews);
+
+router.get("/review/filter", filterHighestReviews);
 
 router.route("/review/:reviewId").get(getOneReview);
 
